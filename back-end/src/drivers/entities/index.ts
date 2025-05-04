@@ -1,0 +1,1 @@
+export { Driver } from './driver.entity';
