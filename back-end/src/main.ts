@@ -13,6 +13,11 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     })
   );
+
+  app.enableCors({
+    origin: 'http://localhost:3001',
+    methods: 'GET,POST,PATCH,DELETE'
+  })
   
   await app.listen(3000);
   logger.log(`App running on port ${process.env.PORT}`);
