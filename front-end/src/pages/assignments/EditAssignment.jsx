@@ -25,29 +25,31 @@ export const EditAssignment = () => {
     const fetchOptions = async () => {
       try {
         setLoading(true);
-        const [driversRes, vehiclesRes, assignment] = await Promise.all([
+        const [driversRes, vehiclesRes] = await Promise.all([
           fetch(`${baseRoute}/api/drivers`, {
             headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
           }),
           fetch(`${baseRoute}/api/vehicles`, {
             headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
           }),
-          fetch(`${baseRoute}/api/assignments/${id}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
-          }),
         ]);
-        const driversData = await driversRes.json();
-        const vehiclesData = await vehiclesRes.json();
-        const assignmentData = await assignment.json();
-        setDrivers(driversData);
-        setVehicles(vehiclesData);
 
         if(isEdit) {
-            setFormData({
-                driverId: assignmentData.driver.id,
-                vehicleId: assignmentData.vehicle.id
-            })
+          const assignment = await fetch(`${baseRoute}/api/assignments/${id}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("authToken")}` },
+          })
+
+          const assignmentData = await assignment.json();
+
+          setFormData({
+            driverId: assignmentData.driver.id,
+            vehicleId: assignmentData.vehicle.id
+          })
         }
+        const driversData = await driversRes.json();
+        const vehiclesData = await vehiclesRes.json();
+        setDrivers(driversData);
+        setVehicles(vehiclesData);
       } catch (err) {
         showToast("Error fetching drivers or vehicles", "error");
         console.error(err);
