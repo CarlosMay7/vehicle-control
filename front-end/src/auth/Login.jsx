@@ -6,11 +6,36 @@ export const Login = ({ onLogin }) => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onLogin({ email }); // Integrar login
-    localStorage.setItem('authToken', 'iurvujivne')
-    navigate("/dashboard");
+
+    const baseRoute = import.meta.env.VITE_API_URL;
+
+    try {
+      const res = await fetch(`${baseRoute}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          'Content-Type': "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) throw new Error("Login fallido");
+
+      const data = await res.json();
+      const token = data.token;
+
+      localStorage.setItem('authToken', token);
+
+      onLogin({ email });
+      
+      navigate("/dashboard");
+
+    } catch (err) {
+      console.error("Error al iniciar sesión:", err);
+      alert("Credenciales incorrectas o error de red.");
+    }
   };
 
   return (
