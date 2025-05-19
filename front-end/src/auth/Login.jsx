@@ -21,7 +21,7 @@ export const Login = ({ onLogin }) => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (!res.ok) throw new Error("Login fallido");
+      if (!res.ok) throw new Error("Login failed");
 
       const data = await res.json();
       const token = data.token;
@@ -33,8 +33,8 @@ export const Login = ({ onLogin }) => {
       navigate("/dashboard");
 
     } catch (err) {
-      console.error("Error al iniciar sesión:", err);
-      alert("Credenciales incorrectas o error de red.");
+      console.error("Login error:", err);
+      alert("Incorrect credentials or network error.");
     }
   };
 
