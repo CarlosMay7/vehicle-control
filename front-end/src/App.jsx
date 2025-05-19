@@ -6,8 +6,10 @@ import { Dashboard } from "./dashboard/Dashboard";
 import { SideBar } from "./components/Sidebar";
 import { PrivateRoute } from "./components/PrivateRoute";
 import { Logout } from "./auth/Logout";
+import { AssignmentIndex } from "./pages/assignments/AssignmentIndex";
 
 import "./index.css";
+import { EditAssignment } from "./pages/assignments/EditAssignment";
 
 export const App = () => {
   const [user, setUser] = useState(null);
@@ -26,6 +28,10 @@ export const App = () => {
             <Route element={<PrivateRoute />}>
               <Route element={<SideBar />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+                {/* <Route path="/assignments" element={<AssignmentIndex />} /> */}
+                  <Route path="/assignment" element={<AssignmentIndex />} />
+                  <Route path="/assignment/new" element={<EditAssignment />} />
+                  <Route path="/assignment/:id/edit" element={<EditAssignment />} />
               </Route>
             </Route>
           ) : (

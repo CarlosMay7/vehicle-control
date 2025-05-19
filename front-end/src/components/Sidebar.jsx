@@ -4,7 +4,7 @@ import { Link, useLocation, Outlet } from "react-router-dom";
 const menuItems = [
   { name: "Dashboard", path: "/dashboard" },
 //Rutas reales, quizás tenerlos en un archivo
-//   { name: "Usuarios", path: "/usuarios" },
+  { name: "Assignments", path: "/assignment" },
 //   { name: "Viajes", path: "/viajes" },
 //   { name: "Vehículos", path: "/vehiculos" },
 //   { name: "Conductores", path: "/conductores" },
