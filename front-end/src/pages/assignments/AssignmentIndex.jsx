@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { GenericIndex } from "../components/GenericIndex";
-import { Toast } from "../../components/tOAST.JSX";
+import { Toast } from "../../components/Toast";
 
 const baseRoute = import.meta.env.VITE_API_URL;
 
