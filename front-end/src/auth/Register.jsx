@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export const Register = () => {
   const [email, setEmail] = useState("");
@@ -8,7 +8,6 @@ export const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí iría el registro real
     navigate("/login");
   };
 
@@ -38,6 +37,14 @@ export const Register = () => {
         >
           Registrarse
         </button>
+
+        <p className="text-sm mt-4 text-center">
+          ¿Ya tienes cuenta?{" "}
+          <Link to="/login" style={{ color: "blue" }}>
+            Inicia sesión
+          </Link>
+        </p>
+
       </form>
     </div>
   );
