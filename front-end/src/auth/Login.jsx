@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export const Login = ({ onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,9 +28,8 @@ export const Login = ({ onLogin }) => {
       localStorage.setItem('authToken', token);
 
       onLogin({ email });
-      
-      navigate("/dashboard");
 
+      navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);
       alert("Incorrect credentials or network error.");
@@ -42,6 +40,7 @@ export const Login = ({ onLogin }) => {
     <div className="flex items-center justify-center h-screen">
       <form onSubmit={handleSubmit} className="bg-white text-black p-8 rounded-2xl shadow-lg w-80">
         <h2 className="text-2xl font-bold mb-6 text-purple-800 text-center">Iniciar Sesión</h2>
+
         <input
           type="email"
           placeholder="Correo"
@@ -50,6 +49,7 @@ export const Login = ({ onLogin }) => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+
         <input
           type="password"
           placeholder="Contraseña"
@@ -58,13 +58,21 @@ export const Login = ({ onLogin }) => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
+
         <button
           type="submit"
           className="w-full bg-purple-700 text-white py-2 rounded hover:bg-purple-800"
         >
           Entrar
         </button>
+
+        <p className="text-sm mt-4 text-center">
+          ¿No tienes cuenta?{" "}
+          <Link to="/register" style={{ color: "blue" }}>
+            Regístrate aquí
+          </Link>
+        </p>
       </form>
     </div>
   );
-}
+};

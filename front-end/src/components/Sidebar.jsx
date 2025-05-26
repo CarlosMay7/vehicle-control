@@ -5,9 +5,9 @@ const menuItems = [
   { name: "Dashboard", path: "/dashboard" },
 //Rutas reales, quizás tenerlos en un archivo
   { name: "Assignments", path: "/assignment" },
-//   { name: "Viajes", path: "/viajes" },
-//   { name: "Vehículos", path: "/vehiculos" },
-//   { name: "Conductores", path: "/conductores" },
+  { name: "Vehicles", path: "/vehicle" },
+  { name: "Drivers", path: "/driver" },
+  { name: "Routes", path: "/route" },
 ];
 
 export const SideBar = () => {
