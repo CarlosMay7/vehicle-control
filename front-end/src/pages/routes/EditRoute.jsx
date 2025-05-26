@@ -1,14 +1,25 @@
+/**
+ * @file EditRoute.jsx
+ * @description Componente para crear o modificar la información de una Ruta de viaje.
+ * Provee un formulario que permite al usuario seleccionar una asignación, definir
+ * coordenadas de inicio y destino, fecha de la ruta, si fue exitosa, y añadir
+ * descripciones de problemas o comentarios. Maneja la lógica de carga de datos
+ * para edición y el envío de información a la API.
+ * @author Equipo 3
+ * @version 1.0.0
+ */
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Toast } from "../../components/Toast";
+import { Toast } from "../../components/Toast"; // Importa el componente para notificaciones al usuario.
 
-const baseRoute = import.meta.env.VITE_API_URL;
+const baseRoute = import.meta.env.VITE_API_URL; // URL base de la API.
 
 export const EditRoute = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const isEdit = !!id;
+  const navigate = useNavigate(); // Hook para redirigir programáticamente.
+  const { id } = useParams(); // Extrae el ID de la ruta de la URL para saber si es edición.
+  const isEdit = !!id; // Bandera booleana para el modo edición.
 
+  // Estado que contiene los datos del formulario de la ruta.
   const [formData, setFormData] = useState({
     assignmentId: "",
     name: "",
@@ -17,21 +28,37 @@ export const EditRoute = () => {
     destinationLatitude: "",
     destinationLongitude: "",
     routeDate: "",
-    successful: true,
+    successful: true, // Por defecto, una ruta es exitosa.
     issueDescription: "",
     comments: "",
   });
 
-  const [assignments, setAssignments] = useState([]);
-  const [saving, setSaving] = useState(false);
-  const [toast, setToast] = useState(null);
+  const [assignments, setAssignments] = useState([]); // Almacena la lista de asignaciones disponibles.
+  const [saving, setSaving] = useState(false); // Controla el estado de guardado del formulario.
+  const [toast, setToast] = useState(null); // Gestiona la visualización de mensajes de tostada.
 
+  /**
+   * @function showToast
+   * @description Activa un mensaje de tostada visible temporalmente para el usuario.
+   * @param {string} message - Contenido del mensaje.
+   * @param {string} [type="success"] - Tipo de tostada (ej. "success", "error").
+   */
   const showToast = (message, type = "success") => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
+  /**
+   * @function useEffect
+   * @description Hook para cargar las asignaciones disponibles y, si es modo edición,
+   * los datos de la ruta específica.
+   */
   useEffect(() => {
+    /**
+     * @async
+     * @function fetchAssignments
+     * @description Obtiene la lista de asignaciones desde la API para el selector.
+     */
     const fetchAssignments = async () => {
       try {
         const res = await fetch(`${baseRoute}/api/assignments`, {
@@ -40,13 +67,18 @@ export const EditRoute = () => {
           },
         });
         const data = await res.json();
-        setAssignments(data);
+        setAssignments(data); // Actualiza el estado con las asignaciones.
       } catch (err) {
-        showToast("Error fetching assignments", "error");
+        showToast("Error fetching assignments", "error"); // Notifica si falla.
         console.error(err);
       }
     };
 
+    /**
+     * @async
+     * @function fetchRoute
+     * @description Obtiene los datos de una ruta específica si se está editando.
+     */
     const fetchRoute = async () => {
       try {
         const res = await fetch(`${baseRoute}/api/routes/${id}`, {
@@ -54,7 +86,9 @@ export const EditRoute = () => {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
         });
+        if (!res.ok) throw new Error("Failed to fetch route data"); // Manejo de error en la petición.
         const data = await res.json();
+        // Llena el formulario con los datos de la ruta recuperada, formateando fechas y manejando valores nulos.
         setFormData({
           assignmentId: data.assignmentId,
           name: data.name,
@@ -68,27 +102,42 @@ export const EditRoute = () => {
           comments: data.comments || "",
         });
       } catch (err) {
-        showToast("Error loading route", "error");
+        showToast("Error loading route", "error"); // Notifica si falla.
         console.error(err);
       }
     };
 
-    fetchAssignments();
-    if (isEdit) fetchRoute();
-  }, [id, isEdit]);
+    fetchAssignments(); // Siempre carga las asignaciones.
+    if (isEdit) fetchRoute(); // Carga la ruta solo si es modo edición.
+  }, [id, isEdit]); // Dependencias para re-ejecutar el efecto.
 
+  /**
+   * @function handleChange
+   * @description Actualiza el estado `formData` cuando un campo del formulario cambia.
+   * Maneja inputs de texto, números y checkboxes.
+   * @param {object} e - El evento de cambio del input.
+   */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : value, // Manejo específico para checkboxes.
     }));
   };
 
+  /**
+   * @async
+   * @function handleSubmit
+   * @description Maneja el envío del formulario, realizando una petición POST o PATCH a la API.
+   * Prepara el payload convirtiendo coordenadas a números y envía los datos para crear
+   * o actualizar una ruta.
+   * @param {Event} e - El evento de envío del formulario.
+   */
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault(); // Evita la recarga de la página.
+    setSaving(true); // Activa el indicador de guardado.
 
+    // Convierte las coordenadas a números flotantes antes de enviarlas.
     const payload = {
       ...formData,
       startLatitude: parseFloat(formData.startLatitude),
@@ -97,6 +146,7 @@ export const EditRoute = () => {
       destinationLongitude: parseFloat(formData.destinationLongitude),
     };
 
+    // Determina el método HTTP (POST para crear, PATCH para actualizar) y la URL.
     const method = isEdit ? "PATCH" : "POST";
     const url = isEdit
       ? `${baseRoute}/api/routes/${id}`
@@ -109,17 +159,17 @@ export const EditRoute = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload), // Envía los datos del formulario como JSON.
       });
 
-      if (!res.ok) throw new Error("Error saving route");
+      if (!res.ok) throw new Error("Error saving route"); // Manejo de error en la respuesta de la API.
 
-      showToast(isEdit ? "Route updated" : "Route created");
-      setTimeout(() => navigate("/route"), 1000);
+      showToast(isEdit ? "Route updated" : "Route created"); // Notifica el éxito.
+      setTimeout(() => navigate("/route"), 1000); // Redirige después de un breve retardo.
     } catch (err) {
-      showToast(err.message, "error");
+      showToast(err.message, "error"); // Muestra el mensaje de error.
     } finally {
-      setSaving(false);
+      setSaving(false); // Desactiva el indicador de guardado.
     }
   };
 
@@ -133,7 +183,7 @@ export const EditRoute = () => {
         />
       )}
       <h2 className="text-2xl font-semibold text-white mb-6 text-center">
-        {isEdit ? "Edit Route" : "Create Route"}
+        {isEdit ? "Edit Route" : "Create Route"} {/* Título dinámico */}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -146,6 +196,7 @@ export const EditRoute = () => {
             className="w-full p-2 border rounded bg-purple-950 text-white"
           >
             <option value="">Select an assignment</option>
+            {/* Mapea las asignaciones disponibles para el selector. */}
             {assignments.map((a) => (
               <option key={a.id} value={a.id}>
                 {`${a.id} - ${a.driver?.fullName} / ${a.vehicle?.licensePlate}`}
@@ -154,7 +205,8 @@ export const EditRoute = () => {
           </select>
         </div>
 
-        {[ 
+        {/* Campos de entrada de texto y número renderizados dinámicamente. */}
+        {[
           { name: "name", label: "Name", type: "text" },
           { name: "startLatitude", label: "Start Latitude", type: "number" },
           { name: "startLongitude", label: "Start Longitude", type: "number" },
@@ -175,6 +227,7 @@ export const EditRoute = () => {
           </div>
         ))}
 
+        {/* Checkbox para indicar si la ruta fue exitosa. */}
         <div className="flex items-center space-x-2">
           <input
             id="successful"
@@ -189,6 +242,7 @@ export const EditRoute = () => {
           </label>
         </div>
 
+        {/* Campos de área de texto para descripción de problemas y comentarios. */}
         <div>
           <label className="block mb-1 capitalize">Issue Description</label>
           <textarea
@@ -211,10 +265,10 @@ export const EditRoute = () => {
 
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving} // Deshabilita el botón durante el guardado.
           className="w-full bg-purple-700 text-white py-2 rounded hover:bg-purple-800 disabled:opacity-60"
         >
-          {saving ? "Saving..." : isEdit ? "Update" : "Create"}
+          {saving ? "Saving..." : isEdit ? "Update" : "Create"} {/* Texto dinámico del botón */}
         </button>
       </form>
     </div>

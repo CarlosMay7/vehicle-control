@@ -8,7 +8,6 @@ export const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí iría el registro real
     navigate("/login");
   };
 
